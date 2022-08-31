@@ -1,0 +1,39 @@
+#include<cstring>
+#include<malloc.h>
+#include<iostream>
+#include<string>
+using namespace std;
+typedef unsigned int uni;
+
+int Sunday(const char* src, const char* match)
+{
+	int* arr = (int*)malloc(sizeof(int) * 256);//在堆区申请256个空间，代表256个字符的ASCII值
+	if (arr)for (uni i = 0; i < 256; i++)arr[i] = -1;//全部赋值为-1
+	else return -1;
+	//遍历match，获得match中每个字符从右向左第一次出现的位置
+	for (uni i = 0; i < strlen(match); i++) arr[match[i]] = i;
+	uni i{}, j{}, flag{}, cnt{};//初始化
+	while( i < strlen(src))
+	{
+		if (cnt == strlen(match))break;//匹配成功跳出循环
+		if (src[i] != match[j]) {
+			//接下来一个匹配串的长度中都不可能出现匹配成功，可能出现在交界处
+			flag += strlen(match);
+			flag = i = flag - arr[src[flag]];//交界处字符串对齐
+			cnt = j = 0;
+		}
+		else cnt++, j++, i++;//匹配计数
+	}
+	free(arr);
+	arr = nullptr;
+	if (cnt == strlen(match))return flag;//匹配成功，返回首次匹配成功位置
+	return -1;
+}
+
+int main()
+{
+	string src, match;
+	cin >> src >> match;
+	cout << Sunday(src.c_str(), match.c_str());
+	return 0;
+}
